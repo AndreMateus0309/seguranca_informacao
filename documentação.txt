@@ -1,0 +1,158 @@
+Lista de comandos usados:
+
+APÓS ABRIR O DOCKER
+
+Encontra o apache hadoop no "search"
+Seguindo o tutorial, temos:
+
+	Criar dois arquivos: O "docker-compose.yaml"; e o "config", nos quais, respectivamente, 
+	adicionaremos os nós mestre e operadores, e as configurações do hadoop.
+
+	SISTEMAS DISTRIBUÍDOS
+			|
+			|_____config
+			|
+			|_____docker-compose.yaml
+			|
+			|_____documentação.txt
+
+	No arquivo config, temos o seguinte conteúdo:
+
+	"""
+	CORE-SITE.XML_fs.default.name=hdfs://namenode
+	CORE-SITE.XML_fs.defaultFS=hdfs://namenode
+	HDFS-SITE.XML_dfs.namenode.rpc-address=namenode:8020
+	HDFS-SITE.XML_dfs.replication=1
+	MAPRED-SITE.XML_mapreduce.framework.name=yarn
+	MAPRED-SITE.XML_yarn.app.mapreduce.am.env=HADOOP_MAPRED_HOME=$HADOOP_HOME
+	MAPRED-SITE.XML_mapreduce.map.env=HADOOP_MAPRED_HOME=$HADOOP_HOME
+	MAPRED-SITE.XML_mapreduce.reduce.env=HADOOP_MAPRED_HOME=$HADOOP_HOME
+	YARN-SITE.XML_yarn.resourcemanager.hostname=resourcemanager
+	YARN-SITE.XML_yarn.nodemanager.pmem-check-enabled=false
+	YARN-SITE.XML_yarn.nodemanager.delete.debug-delay-sec=600
+	YARN-SITE.XML_yarn.nodemanager.vmem-check-enabled=false
+	YARN-SITE.XML_yarn.nodemanager.aux-services=mapreduce_shuffle
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.maximum-applications=10000
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.maximum-am-resource-percent=0.1
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.resource-calculator=org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.queues=default
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.default.capacity=100
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.default.user-limit-factor=1
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.default.maximum-capacity=100
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.default.state=RUNNING
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.default.acl_submit_applications=*
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.root.default.acl_administer_queue=*
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.node-locality-delay=40
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.queue-mappings=
+	CAPACITY-SCHEDULER.XML_yarn.scheduler.capacity.queue-mappings-override.enable=false
+	""",
+
+	e no arquivo docker-compose.yaml, temos as seguintes linhas de código:
+
+	"""
+	version: "2"
+	services:
+   		namenode:
+      		image: apache/hadoop:3
+      		hostname: namenode
+      		command: ["hdfs", "namenode"]
+			ports:
+			- 9870:9870
+			env_file:
+			- ./config
+			environment:
+				ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+   		datanode:
+      		image: apache/hadoop:3
+      		command: ["hdfs", "datanode"]
+      		env_file:
+			- ./config
+   		datanode01:
+      		image: apache/hadoop:3
+      		command: ["hdfs", "datanode"]
+      		env_file:
+			- ./config 
+		datanode02:
+			image: apache/hadoop:3
+      		command: ["hdfs", "datanode"]
+      		env_file:
+			- ./config
+   		resourcemanager:
+      		image: apache/hadoop:3
+      		hostname: resourcemanager
+      		command: ["yarn", "resourcemanager"]
+			ports:
+			- 8088:8088
+			env_file:
+			- ./config
+			volumes:
+			- ./test.sh:/opt/test.sh
+		nodemanager:
+      		image: apache/hadoop:3
+      		command: ["yarn", "nodemanager"]
+      		env_file:
+			- ./config
+	"""
+
+	Com os arquivos com o nó mestre, e os nós operadores, rodamos, de acordo com o arquivo "docker-compose.yaml":
+	
+	docker-compose up -d,
+
+	Aparecendo dizeres deste tipo no terminal:
+
+	"""
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	time="2023-08-15T19:00:50-03:00" level=warning msg="The \"HADOOP_HOME\" variable is not set. Defaulting to a blank string."
+	[+] Running 7/7
+	✔ Network sistemasdistribudos_default              Created                                                                                                                   0.0s 
+	✔ Container sistemasdistribudos-datanode-1         Started                                                                                                                   1.5s 
+	✔ Container sistemasdistribudos-datanode02-1       Started                                                                                                                   1.1s 
+	✔ Container sistemasdistribudos-datanode01-1       Started                                                                                                                   1.5s 
+	✔ Container sistemasdistribudos-nodemanager-1      Started                                                                                                                   1.2s 
+	✔ Container sistemasdistribudos-resourcemanager-1  Started                                                                                                                   1.6s 
+	✔ Container sistemasdistribudos-namenode-1         Started  
+	"""
+	
+	Após esta instrução, cria-se uma pasta chamada "test.sh"
+
+	Precisamos entrar no "terminal do Linux", e para isso, executamos:
+
+	"""
+	docker exec -it sistemasdistribudos-datanode-1 /bin/bash
+	"""
+
+	Seu terminal ficará assim:
+
+	"""
+	bash-4.2$ 
+	"""
+
+	Após a instrução anterior, dando o seguinte comando, ocorre um erro de compatibilização:
+	yarn jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.5.jar pi 10 15,
+
+	"""
+	JAR does not exist or is not a normal file: /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.5.jar
+	"""
+
+	Precisamos mudar para 3.3.6!
+
+	Executando mais uma vez, com o 3.3.6, temos:
+	
+	Job Finished in 23.105 seconds
+	Estimated value of Pi is 3.17333333333333333333
